@@ -1,0 +1,30 @@
+{
+  "name": "luj-shqip",
+  "private": true,
+  "version": "0.1.0",
+  "description": "LUJ SHQIP — Albanian multiplayer traditional games platform",
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev:server": "pnpm --filter @lujshqip/server dev",
+    "dev:web": "pnpm --filter @lujshqip/web dev",
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "db:migrate": "pnpm --filter @lujshqip/server db:migrate",
+    "db:status": "pnpm --filter @lujshqip/server db:status",
+    "audit": "pnpm audit --prod"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.0",
+    "eslint": "^10.12.0",
+    "prettier": "^3.9.10",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.2"
+  }
+}
