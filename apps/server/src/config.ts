@@ -10,6 +10,8 @@ const schema = z
     PORT: z.coerce.number().int().min(1).max(65535).default(2567),
     HOST: z.string().default("0.0.0.0"),
     LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info"),
+    /** Set to 1 only when running behind a trusted reverse proxy (so client IPs and rate limits are correct). */
+    TRUST_PROXY: boolish.default(false),
 
     DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
     DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(100).default(10),

@@ -34,14 +34,29 @@ export async function readMigrations(dir: string): Promise<MigrationFile[]> {
   return migrations;
 }
 
+/**
+ * `create ... if not exists` is not safe against concurrent runners (two sessions can both pass the
+ * existence check and one then fails with a catalog unique violation), so it runs under the same
+ * advisory lock that serialises migrations.
+ */
 async function ensureBookkeeping(db: Db): Promise<void> {
-  await db.query("create schema if not exists supabase_migrations");
-  await db.query(`
-    create table if not exists supabase_migrations.schema_migrations (
-      version text primary key,
-      statements text[],
-      name text
-    )`);
+  const client = await db.connect();
+  try {
+    await client.query("select pg_advisory_lock(727274)");
+    try {
+      await client.query("create schema if not exists supabase_migrations");
+      await client.query(`
+        create table if not exists supabase_migrations.schema_migrations (
+          version text primary key,
+          statements text[],
+          name text
+        )`);
+    } finally {
+      await client.query("select pg_advisory_unlock(727274)");
+    }
+  } finally {
+    client.release();
+  }
 }
 
 export interface MigrationStatus {
