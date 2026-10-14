@@ -162,12 +162,16 @@ describe("multiplayer rooms (real server, real WebSockets, real Postgres)", () =
     sa.room.reconnection.minUptime = 0; // the test room has only just opened
     sa.room.reconnection.delay = 100;
     const statesBefore = sa.messages.filter((m) => m.type === "state").length;
+    const welcomesBefore = sa.messages.filter((m) => m.type === "welcome").length;
     (sa.room.connection as any).transport.ws.close(); // abrupt, non-consented close
     await waitFor(() => last(sb, "presence")?.connected === false);
     expect(last(sb, "presence").userId).toBe(sa.userId);
     await waitFor(() => last(sb, "presence")?.connected === true, 15000);
     await waitFor(() => sa.messages.filter((m) => m.type === "state").length > statesBefore);
     expect(sa.view.moveCount).toBe(sb.view.moveCount);
+    // A reconnecting client (e.g. a reloaded page) also gets its identity and the lobby again.
+    expect(sa.messages.filter((m) => m.type === "welcome").length).toBeGreaterThan(welcomesBefore);
+    expect(last(sa, "welcome").you.userId).toBe(sa.userId);
     // The reconnected player can still act (the match was not forfeited).
     const mover = sa.view.turn === sa.userId ? sa : sb;
     const mc = mover.view.moveCount;
@@ -217,5 +221,16 @@ describe("multiplayer rooms (real server, real WebSockets, real Postgres)", () =
     const r1 = await client(a.token).joinOrCreate("pishpirik", { mode: "public" });
     attach(r1, a.userId, a.token);
     await expect(client(a.token).joinOrCreate("pishpirik", { mode: "public" })).rejects.toBeTruthy();
+  });
+
+  it("answers CORS preflight for allowed origins only (matchmaking endpoint)", async () => {
+    const url = `http://127.0.0.1:${server.port}/matchmake/joinOrCreate/pishpirik`;
+    const ok = await fetch(url, { method: "OPTIONS", headers: { origin: "http://localhost:5173", "access-control-request-method": "POST" } });
+    expect(ok.status).toBe(204);
+    expect(ok.headers.get("access-control-allow-origin")).toBe("http://localhost:5173");
+    expect(ok.headers.get("access-control-allow-credentials")).toBe("true");
+    const bad = await fetch(url, { method: "OPTIONS", headers: { origin: "https://evil.example", "access-control-request-method": "POST" } });
+    expect(bad.status).toBe(403);
+    expect(bad.headers.get("access-control-allow-origin")).toBeNull();
   });
 });

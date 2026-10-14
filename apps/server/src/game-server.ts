@@ -89,6 +89,8 @@ export async function startServer(deps: { config: Config; db: Db; verifier: Toke
           if (origin) {
             res.setHeader("access-control-allow-origin", origin);
             res.setHeader("vary", "origin");
+            // The SDK issues credentialed requests; we only ever allow origins from the allowlist (checked above).
+            res.setHeader("access-control-allow-credentials", "true");
             res.setHeader("access-control-allow-headers", "authorization, content-type");
             res.setHeader("access-control-allow-methods", "GET, POST, OPTIONS");
           }

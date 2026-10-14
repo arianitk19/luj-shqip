@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Luj Shqip">
+  <rect width="512" height="512" fill="#0e0d0c"/>
+  <rect x="96" y="76" width="228" height="320" rx="26" fill="#f3ece1" transform="rotate(-9 210 236)"/>
+  <rect x="188" y="116" width="228" height="320" rx="26" fill="#d4202c" transform="rotate(8 302 276)"/>
+  <path d="M302 232c-30-34-70-6-52 30 10 20 36 38 52 56 16-18 42-36 52-56 18-36-22-64-52-30z" fill="#f3ece1"/>
+</svg>

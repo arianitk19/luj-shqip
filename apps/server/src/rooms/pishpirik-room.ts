@@ -158,18 +158,7 @@ export class PishpirikRoom extends Room {
     ctx.activeUsers.set(auth.userId, this.roomId);
     client.userData = { userId: auth.userId };
 
-    const welcome: WelcomePayload = {
-      roomId: this.roomId,
-      mode: this.mode,
-      seat: seat.seat,
-      you: { userId: seat.userId, username: seat.username, avatarId: seat.avatarId },
-      phase: this.phase,
-      ruleVersion: engine.ruleVersion,
-      code: this.mode === "private" ? this.code : undefined,
-      turnTimeoutSeconds: ctx.config.TURN_TIMEOUT_SECONDS,
-      reconnectGraceSeconds: ctx.config.RECONNECT_GRACE_SECONDS,
-    };
-    client.send(ServerMessage.WELCOME, welcome);
+    client.send(ServerMessage.WELCOME, this.welcomeFor(seat));
     this.broadcastLobby();
     void this.enqueue(() => this.maybeStart());
   }
@@ -188,6 +177,22 @@ export class PishpirikRoom extends Room {
     // In the lobby or after the match there is nothing to protect: onLeave follows immediately.
   }
 
+
+  private welcomeFor(seat: Seat): WelcomePayload {
+    const ctx = getRoomContext();
+    return {
+      roomId: this.roomId,
+      mode: this.mode,
+      seat: seat.seat,
+      you: { userId: seat.userId, username: seat.username, avatarId: seat.avatarId },
+      phase: this.phase,
+      ruleVersion: engine.ruleVersion,
+      code: this.mode === "private" ? this.code : undefined,
+      turnTimeoutSeconds: ctx.config.TURN_TIMEOUT_SECONDS,
+      reconnectGraceSeconds: ctx.config.RECONNECT_GRACE_SECONDS,
+    };
+  }
+
   override onReconnect(client: Client): void {
     const seat = this.seatOf(client);
     if (!seat) return;
@@ -195,7 +200,10 @@ export class PishpirikRoom extends Room {
     seat.connected = true;
     seat.reconnectDeadline = null;
     this.broadcastPresence(seat);
-    this.sendState(seat, []); // full resync for the returning player
+    // Full resync for the returning player (a reloaded page has lost everything it knew).
+    client.send(ServerMessage.WELCOME, this.welcomeFor(seat));
+    this.broadcastLobby();
+    this.sendState(seat, []);
   }
 
   /** Permanent departure: consented leave, grace period expired, or server shutdown. */
