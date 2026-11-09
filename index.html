@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Luj Shqip</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Luj <b>Shqip</b> · Pishpirik</h1>
+  <p class="banner">Demo në shfletues: lojë kundër kompjuterit, pa server, pa llogari dhe pa renditje. Përdor motorin e vërtetë të rregullave; shumëlojtarësh gjendet vetëm në versionin me server.</p>
+  <div class="scores">
+    <div class="score you"><span>Ti</span><strong id="sc-you">0</strong></div>
+    <div class="meta" id="hand-no"></div>
+    <div class="score" style="text-align:right"><span>Kompjuteri</span><strong id="sc-bot">0</strong></div>
+  </div>
+  <section class="felt" aria-label="Tavolina">
+    <div id="bot-hand" aria-label="Letrat e kompjuterit"></div>
+    <div id="turn" aria-live="polite"></div>
+    <div class="centre"><div class="pilebox" id="stock"></div><div class="pilebox" id="pile"></div></div>
+  </section>
+  <div id="hand" role="group" aria-label="Letrat e tua"></div>
+  <div id="log" role="log" aria-live="off"></div>
+</main>
+<div id="result" hidden role="dialog" aria-modal="true" aria-labelledby="res-title">
+  <div class="dialog"><h2 id="res-title"></h2><p id="res-score"></p><button class="btn" id="again" type="button">Luaj përsëri</button></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
